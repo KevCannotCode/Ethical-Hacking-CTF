@@ -1,0 +1,423 @@
+{
+ "title": "OverTheWire Bandit \u2014 Walkthrough",
+ "subtitle": "Levels 0 \u2192 24 \u00b7 bandit.labs.overthewire.org:2220",
+ "intro": "Bandit is a hosted Linux/SSH wargame and the practical companion to the Fundamentals lectures \u2014 the terminal, SSH, file navigation, encoding, networking clients, and small shell scripting. Each level hides the password to the next. This is the instructor answer key: every command was run live against the server, and every password below is the value that command produced. It doubles as the model reference for the report students write about the lab.",
+ "connect": "ssh -p 2220 bandit0@bandit.labs.overthewire.org",
+ "notes": [
+  "Instructor copy \u2014 do not distribute. OverTheWire rotates passwords, so re-run if a value stops working.",
+  "Bandit is an authorized teaching target, designed to be attacked. The same techniques against any system without permission are out of scope and usually illegal \u2014 pair this with the Module 1 ethics readings."
+ ],
+ "wargames_scope": "Bandit 0\u219224 is the only OverTheWire wargame the schedule requires (Lab 1, \"War Games\"). Lab 2 is web exploitation (XSS/SQLi) on D2L and Lab 3 is the NCL Team Game write-up \u2014 neither is a wargame level set, so neither appears here.",
+ "captured_date": "2026-09-10",
+ "levels": [
+  {
+   "id": 0,
+   "from": "bandit0",
+   "to": "bandit1",
+   "title": "Read a file",
+   "skill": "SSH login, ls, cat",
+   "goal": "The password is in a file called readme in the home directory.",
+   "explanation": "First contact with a shell. After logging in over SSH, list what is in the home directory, then read the file. cat prints a file to the screen.",
+   "apply": "Reading a file is the most basic move on any system you land on. On a real box the first thing you do after getting a shell is list the home directory and read anything that looks like notes, config, or credentials left lying around.",
+   "commands": [
+    "ls",
+    "cat readme"
+   ],
+   "password": "6y2kwnwK6grgvwvpvLaa2T1cpFEKOhNR",
+   "shot": "l00.png"
+  },
+  {
+   "id": 1,
+   "from": "bandit1",
+   "to": "bandit2",
+   "title": "A filename that is a dash",
+   "skill": "Awkward filenames: leading dash",
+   "goal": "The password is in a file named - (a single dash) in the home directory.",
+   "explanation": "A bare dash means \"standard input\" to most tools, so cat - would just wait for you to type. Path the file explicitly with ./ so the shell treats it as a filename, not an option.",
+   "apply": "Filenames that look like option flags (starting with - ) show up in messy directories and in files an attacker drops to confuse you. Prefixing ./ (or using -- to end options) is the safe habit for handling any hostile or oddly named path.",
+   "commands": [
+    "ls",
+    "cat ./-"
+   ],
+   "password": "PK8fYLZg2hnHSz83plBL1iEPKdD3QToB",
+   "shot": "l01.png"
+  },
+  {
+   "id": 2,
+   "from": "bandit2",
+   "to": "bandit3",
+   "title": "Filenames with spaces",
+   "skill": "Quoting and tab-completion",
+   "goal": "The password is in a file whose name contains spaces.",
+   "explanation": "Spaces separate arguments, so an unquoted name is read as several files. Quote the whole name, or type the first letters and press Tab to let the shell complete and escape it for you.",
+   "apply": "Spaces and other special characters in names are everywhere on real systems \u2014 \"My Documents\", log files, uploads. Quoting and tab-completion keep your commands correct and are the difference between reading one file and accidentally acting on many.",
+   "commands": [
+    "ls",
+    "cat \"./--spaces in this filename--\""
+   ],
+   "password": "7ZZ2LFrykP2zEyvBl4m3clcL7tGYJPME",
+   "shot": "l02.png"
+  },
+  {
+   "id": 3,
+   "from": "bandit3",
+   "to": "bandit4",
+   "title": "Hidden files",
+   "skill": "ls -a, dotfiles",
+   "goal": "The password is in a hidden file inside the inhere directory.",
+   "explanation": "Files whose names start with a dot are hidden from a plain ls. ls -a (or ls -la) reveals them; then read the one that turns up.",
+   "apply": "Dotfiles hold configuration and secrets \u2014 .ssh, .env, .git, shell history. Listing hidden files is routine reconnaissance on any account you gain access to, because that is where the interesting material usually hides.",
+   "commands": [
+    "ls -a inhere",
+    "cat \"inhere/...Hiding-From-You\""
+   ],
+   "password": "xzTXq1rDJQVVAzdv5cHq1TQytTWufAMq",
+   "shot": "l03.png"
+  },
+  {
+   "id": 4,
+   "from": "bandit4",
+   "to": "bandit5",
+   "title": "Find the human-readable file",
+   "skill": "file(1), type detection",
+   "goal": "The password is in the only human-readable file in the inhere directory.",
+   "explanation": "The directory is full of similarly named files, most of them binary. file inspects each one's contents and reports its type, so you can pick the one that is ASCII text and read only that.",
+   "apply": "You cannot trust a file's extension. file looks at the actual bytes, which is how you triage unknown downloads, forensic images, or a folder of dumped data before deciding what is worth opening.",
+   "commands": [
+    "cd inhere",
+    "file ./*",
+    "cat ./-file07"
+   ],
+   "password": "6C7h9GD8M6ai5nr7wo1RonrzFjj9yIrG",
+   "shot": "l04.png"
+  },
+  {
+   "id": 5,
+   "from": "bandit5",
+   "to": "bandit6",
+   "title": "Find by size and permission",
+   "skill": "find with predicates",
+   "goal": "A file under inhere: human-readable, exactly 1033 bytes, not executable.",
+   "explanation": "Instead of opening files one by one, describe what you are looking for and let find do the search. Size in bytes uses the c suffix, and permission tests like ! -executable narrow it further.",
+   "apply": "Searching by property scales to systems with thousands of files. Incident responders and pentesters routinely hunt for files of a known size, recent modification time, or specific permissions to locate planted tools or leaked data.",
+   "commands": [
+    "find inhere -type f -size 1033c ! -executable",
+    "cat inhere/maybehere07/.file2"
+   ],
+   "password": "pXa26xhMWaC2SvDotA4r9EgZkulOeSBW",
+   "shot": "l05.png"
+  },
+  {
+   "id": 6,
+   "from": "bandit6",
+   "to": "bandit7",
+   "title": "Find by owner and group",
+   "skill": "system-wide find, stderr",
+   "goal": "Somewhere on the whole server: a file owned by user bandit7, group bandit6, 33 bytes.",
+   "explanation": "Search the entire filesystem from / using ownership predicates. A full-tree search hits directories you cannot enter, so send the permission-denied errors to /dev/null to keep the output clean.",
+   "apply": "Finding files by owner is how you spot what a particular account or service can touch \u2014 a core step in privilege-escalation checks. Discarding stderr with 2>/dev/null is the standard way to keep a noisy search readable.",
+   "commands": [
+    "find / -user bandit7 -group bandit6 -size 33c 2>/dev/null",
+    "cat /var/lib/dpkg/info/bandit7.password"
+   ],
+   "password": "Bmnnvf82KzQlfxgAI2d1zYbr1u9pr3E3",
+   "shot": "l06.png"
+  },
+  {
+   "id": 7,
+   "from": "bandit7",
+   "to": "bandit8",
+   "title": "Search inside a file",
+   "skill": "grep",
+   "goal": "The password sits next to the word 'millionth' in data.txt.",
+   "explanation": "The file is far too large to read by eye. grep prints only the lines that match a pattern, so search for the known word and the password is on the same line.",
+   "apply": "grep is the workhorse for pulling a needle out of a haystack \u2014 a username in a log, an IP in a capture, an error in output. Knowing one keyword near what you want is often enough to find it instantly.",
+   "commands": [
+    "grep millionth data.txt"
+   ],
+   "password": "VR1ljMayciFxbnUokuQmJFw6QC9VKtub",
+   "shot": "l07.png"
+  },
+  {
+   "id": 8,
+   "from": "bandit8",
+   "to": "bandit9",
+   "title": "The line that appears once",
+   "skill": "sort + uniq",
+   "goal": "The password is the only line in data.txt that occurs exactly once.",
+   "explanation": "uniq compares adjacent lines, so the input has to be sorted first. Piping sort into uniq -u prints only the lines that never repeat, leaving the single unique password.",
+   "apply": "sort | uniq pipelines are everyday log analysis: count repeated events, find the one anomaly, or dedupe a list. This exact idiom appears constantly when triaging large text data.",
+   "commands": [
+    "sort data.txt | uniq -u"
+   ],
+   "password": "EjmOSvuAu7sGAHqHVcBDPirRe9T03kxl",
+   "shot": "l08.png"
+  },
+  {
+   "id": 9,
+   "from": "bandit9",
+   "to": "bandit10",
+   "title": "Readable strings in a binary",
+   "skill": "strings",
+   "goal": "The password is one of a few readable strings in data.txt, preceded by several '=' characters.",
+   "explanation": "Most of the file is non-printable bytes. strings extracts the runs of readable text, and piping through grep for the === marker isolates the line you want.",
+   "apply": "strings is a first-pass tool on any binary or malware sample \u2014 it surfaces embedded URLs, file paths, error messages, and keys without a disassembler. It is fast triage before deeper reverse engineering.",
+   "commands": [
+    "strings data.txt | grep ==="
+   ],
+   "password": "B0s2khmbT9u0geKuOoVGW3JZKhndE3BG",
+   "shot": "l09.png"
+  },
+  {
+   "id": 10,
+   "from": "bandit10",
+   "to": "bandit11",
+   "title": "Base64 decoding",
+   "skill": "base64",
+   "goal": "data.txt is base64 encoded.",
+   "explanation": "Base64 is an encoding, not encryption \u2014 it just represents bytes in a printable alphabet. base64 -d reverses it to reveal the original text.",
+   "apply": "Base64 is everywhere: email attachments, JSON web tokens, config blobs, and data-exfiltration attempts that try to look innocuous. Recognising and decoding it is a core skill, and it ties directly into the cryptography module's point that encoding hides nothing.",
+   "commands": [
+    "base64 -d data.txt"
+   ],
+   "password": "pYfOY6HwUsDj5rL9UvyhU7MCmv8vN5Ro",
+   "shot": "l10.png"
+  },
+  {
+   "id": 11,
+   "from": "bandit11",
+   "to": "bandit12",
+   "title": "ROT13 with tr",
+   "skill": "character translation",
+   "goal": "data.txt has had every letter rotated 13 positions (ROT13).",
+   "explanation": "tr translates one set of characters into another. Mapping A\u2013Z and a\u2013z onto the alphabet shifted by 13 undoes the rotation. ROT13 is its own inverse, so the same command encodes and decodes.",
+   "apply": "tr is handy for quick, character-level transforms \u2014 stripping characters, changing case, or breaking a simple substitution cipher. ROT13 itself is trivial, but it teaches how weak 'obfuscation' schemes are reversed in one line.",
+   "commands": [
+    "cat data.txt | tr 'A-Za-z' 'N-ZA-Mn-za-m'"
+   ],
+   "password": "GROozWPO8QyN0mGrjUkID0WCYkZiQxrN",
+   "shot": "l11.png"
+  },
+  {
+   "id": 12,
+   "from": "bandit12",
+   "to": "bandit13",
+   "title": "Hexdump and layered decompression",
+   "skill": "xxd, gzip/bzip2/tar",
+   "goal": "data.txt is a hexdump of a file that was compressed many times over.",
+   "explanation": "Copy the file to your own directory under /tmp, rebuild the binary with xxd -r, then peel it layer by layer: run file to see the current type, rename to the matching extension, decompress, and repeat until file finally reports ASCII text.",
+   "apply": "The file \u2192 decompress \u2192 file loop is exactly how you unpack nested archives and disguised payloads in forensics and malware analysis. It also drills the discipline of working in a scratch directory so you never damage the original evidence.",
+   "commands": [
+    "mkdir -p /tmp/wt12x",
+    "cd /tmp/wt12x",
+    "cp ~/data.txt .",
+    "xxd -r data.txt > data",
+    "file data   # then: rename to .gz/.bz2/.tar, decompress, repeat",
+    "cat data8.bin"
+   ],
+   "password": "qQYQiHOBPR8zR61qxYqX45quvihF2uzk",
+   "shot": "l12.png"
+  },
+  {
+   "id": 13,
+   "from": "bandit13",
+   "to": "bandit14",
+   "title": "SSH private keys",
+   "skill": "ssh -i, key auth",
+   "goal": "No password is given \u2014 only a private SSH key. bandit14's password lives in /etc/bandit_pass/bandit14, readable only by bandit14.",
+   "explanation": "Authenticate with the key file instead of a password using ssh -i, logging in as bandit14. Once you are that user you can read their password file, which every level from here uses.",
+   "apply": "Stolen or leaked SSH keys are a real and common foothold \u2014 a key found on one host often unlocks others. This level shows how key-based auth works and why an exposed private key is as good as a password.",
+   "commands": [
+    "ls",
+    "chmod 600 sshkey.private",
+    "ssh -i sshkey.private -p 2220 bandit14@localhost",
+    "cat /etc/bandit_pass/bandit14"
+   ],
+   "password": "aaWecNkG4FhxJQxz07uiwzVP6bJiYS65",
+   "shot": "l13.png"
+  },
+  {
+   "id": 14,
+   "from": "bandit14",
+   "to": "bandit15",
+   "title": "Talk to a plain TCP port",
+   "skill": "netcat",
+   "goal": "Submit the current password to port 30000 on localhost.",
+   "explanation": "netcat opens a raw TCP connection. Pipe the current password into nc pointed at the port and the service replies with the next one.",
+   "apply": "netcat is the Swiss-army knife for network services \u2014 banner grabbing, manual protocol testing, quick client/server links, and moving data between hosts. Speaking to a raw port by hand is fundamental to understanding how services actually work.",
+   "commands": [
+    "cat /etc/bandit_pass/bandit14 | nc localhost 30000"
+   ],
+   "password": "pbLYuZtTg4MgaqfJx8jbA9gKKGqM68A7",
+   "shot": "l14.png"
+  },
+  {
+   "id": 15,
+   "from": "bandit15",
+   "to": "bandit16",
+   "title": "TLS client with OpenSSL",
+   "skill": "openssl s_client",
+   "goal": "Submit the current password to port 30001 on localhost, over SSL/TLS.",
+   "explanation": "The service is the same idea as the last level but wrapped in TLS, so plain netcat will not do. openssl s_client -connect performs the TLS handshake and then lets you send the password.",
+   "apply": "s_client is how you inspect and talk to any TLS service \u2014 check a certificate, test a cipher, or debug an HTTPS or mail endpoint by hand. It is a daily tool for anyone probing encrypted services.",
+   "commands": [
+    "cat /etc/bandit_pass/bandit15 | openssl s_client -connect localhost:30001 -quiet"
+   ],
+   "password": "kS0Hf0u5HiXFwKMKFqXvPdOTNGGa0X8V",
+   "shot": "l15.png"
+  },
+  {
+   "id": 16,
+   "from": "bandit16",
+   "to": "bandit17",
+   "title": "Port scan then connect",
+   "skill": "nmap + TLS",
+   "goal": "Find the one useful server among ports 31000\u201332000 \u2014 some are plain, some TLS, most just echo \u2014 and submit the password to it.",
+   "explanation": "First scan the range with nmap to see which ports are open. Then connect to each with openssl s_client and submit the password; the right one hands back an SSH private key rather than a password.",
+   "apply": "Scan, then interact with what you find, is the core recon-to-exploitation loop. nmap maps the attack surface and the follow-up connection confirms what each open port really is \u2014 the everyday rhythm of enumeration.",
+   "commands": [
+    "nmap -p31000-32000 localhost",
+    "cat /etc/bandit_pass/bandit16 | openssl s_client -connect localhost:31790 -quiet",
+    "cat key.private   # save the key above, then chmod 600",
+    "ssh -i key.private -p 2220 bandit17@localhost",
+    "cat /etc/bandit_pass/bandit17"
+   ],
+   "password": "pWXMAZoxGC8JmDMfmT5MGEsobMM3vnj2",
+   "shot": "l16.png"
+  },
+  {
+   "id": 17,
+   "from": "bandit17",
+   "to": "bandit18",
+   "title": "Diff two files",
+   "skill": "diff",
+   "goal": "Two files, passwords.old and passwords.new. The password is the single line that changed.",
+   "explanation": "diff reports the lines that differ between two files. The line marked with > is the one added in the new file \u2014 that is the password.",
+   "apply": "Comparing a known-good file against a current one is how you spot tampering \u2014 a changed config, an added account, a modified binary. diff and its cousins underpin integrity checking and change review.",
+   "commands": [
+    "diff passwords.old passwords.new"
+   ],
+   "password": "OQxXZjELndr90zuhOTDYBEomI0SZITXI",
+   "shot": "l17.png"
+  },
+  {
+   "id": 18,
+   "from": "bandit18",
+   "to": "bandit19",
+   "title": "Run a command without a shell",
+   "skill": "non-interactive SSH",
+   "goal": "~/.bashrc has been rigged to log you out the instant you connect. Read ~/readme anyway.",
+   "explanation": "Passing a command to ssh runs it directly instead of starting the interactive login shell, so the sabotaged .bashrc never fires. The file's contents come straight back.",
+   "apply": "Running a single remote command is how automation and scripts use SSH, and it is also how you work around a broken or hostile login environment. Knowing the login shell can be bypassed matters for both administration and defense.",
+   "commands": [
+    "ssh -p 2220 bandit18@localhost cat readme"
+   ],
+   "password": "KpsOfPkcP7i1FlIExk2QEjyt6dw8dxZI",
+   "shot": "l18.png"
+  },
+  {
+   "id": 19,
+   "from": "bandit19",
+   "to": "bandit20",
+   "title": "Setuid binary",
+   "skill": "setuid privilege",
+   "goal": "A setuid binary in the home directory runs as bandit20. Use it to read bandit20's password.",
+   "explanation": "A setuid program runs with the permissions of its owner, not yours. Run it with no arguments to see how it works, then use it to cat bandit20's password file as bandit20.",
+   "apply": "Misconfigured setuid binaries are a classic privilege-escalation path on Linux. Enumerating them and understanding what they will run for you is a standard step in any local privesc assessment.",
+   "commands": [
+    "./bandit20-do",
+    "./bandit20-do cat /etc/bandit_pass/bandit20"
+   ],
+   "password": "4pIjcunZ0fK2vmp3IwfG8Vf7VhxD6pOA",
+   "shot": "l19.png"
+  },
+  {
+   "id": 20,
+   "from": "bandit20",
+   "to": "bandit21",
+   "title": "Setuid meets your own listener",
+   "skill": "netcat listener, background jobs",
+   "goal": "A setuid binary connects to a port you name, reads one line, and if it equals bandit20's password it prints bandit21's. Needs two terminals.",
+   "explanation": "Start a netcat listener that serves bandit20's password on a port, then point the setuid binary at that same port. The binary connects, reads the password, and sends the next one back to your listener.",
+   "apply": "This is a first client/server exercise and a first taste of running two processes at once. The pattern \u2014 stand up a listener, then trigger something to connect to it \u2014 is exactly how reverse shells and callback-based exploits work.",
+   "commands": [
+    "nc -l -p 4471 < /etc/bandit_pass/bandit20 &",
+    "./suconnect 4471"
+   ],
+   "password": "bW9kBv5WC3P4yoDyf12LSdGuNz5ka6hY",
+   "shot": "l20.png"
+  },
+  {
+   "id": 21,
+   "from": "bandit21",
+   "to": "bandit22",
+   "title": "Read a cron job",
+   "skill": "cron basics",
+   "goal": "A program runs automatically from cron. Find what it does in /etc/cron.d and follow it.",
+   "explanation": "Read the cron entry to see which script runs and how often, read that script to see what it does, and read the file it writes into /tmp. The password is sitting in that output file.",
+   "apply": "Scheduled tasks are a favourite place to hide persistence and to find privilege escalation. Reading /etc/cron.d and tracing each job to the script and files it touches is standard system triage.",
+   "commands": [
+    "cat /etc/cron.d/cronjob_bandit22",
+    "cat /usr/bin/cronjob_bandit22.sh",
+    "cat /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv"
+   ],
+   "password": "RYVux2rHEm9tiXHmLFzuR7Vhx6AZQMEz",
+   "shot": "l21.png"
+  },
+  {
+   "id": 22,
+   "from": "bandit22",
+   "to": "bandit23",
+   "title": "Predict the cron output file",
+   "skill": "reading a script, md5sum",
+   "goal": "The cron script derives its output filename from a hash. Reproduce the hash to find the file.",
+   "explanation": "The script builds a filename by piping a fixed string through md5sum. Run that same pipeline yourself to compute the name, then read the matching file under /tmp.",
+   "apply": "Reading a script and reasoning about what it will produce \u2014 rather than guessing \u2014 is real analysis. Predictable, hash-derived filenames also show why 'security through obscurity' fails once the algorithm is known.",
+   "commands": [
+    "cat /etc/cron.d/cronjob_bandit23",
+    "cat /usr/bin/cronjob_bandit23.sh",
+    "echo I am user bandit23 | md5sum | cut -d ' ' -f 1",
+    "cat /tmp/8ca319486bfbbc3663ea0fbe81326349"
+   ],
+   "password": "gKXDTAXnIz3OBxiPjRZ2uqutUlPZrBsw",
+   "shot": "l22.png"
+  },
+  {
+   "id": 23,
+   "from": "bandit23",
+   "to": "bandit24",
+   "title": "Plant a script for cron to run",
+   "skill": "cron exploitation, writable spool",
+   "goal": "A cron job runs \u2014 and deletes \u2014 every script it finds in a spool directory you can write to. Plant one that copies the password out.",
+   "explanation": "Read the cron script to find the directory it watches. Write a short script that copies bandit24's password to a file you can read, make it world-writable, drop it in the watched directory, and wait about a minute for cron to run it as bandit24.",
+   "apply": "A higher-privileged process executing files from a location you control is a textbook privilege-escalation and persistence pattern. Recognising a writable, auto-executed directory is a key finding in any hardening or attack review.",
+   "commands": [
+    "cat /etc/cron.d/cronjob_bandit24",
+    "cat /usr/bin/cronjob_bandit24.sh",
+    "mkdir -p /tmp/mine23z",
+    "cat > /tmp/mine23z/x.sh   # copy the password somewhere I can read",
+    "chmod 777 /tmp/mine23z/x.sh /tmp/mine23z",
+    "cp /tmp/mine23z/x.sh /var/spool/bandit24/foo/",
+    "cat /tmp/mine23z/out"
+   ],
+   "password": "hVQMk3lJNsmQ7VF3ubyrNNBom7BOgVXv",
+   "shot": "l23.png"
+  },
+  {
+   "id": 24,
+   "from": "bandit24",
+   "to": "bandit25",
+   "title": "Brute force a pincode",
+   "skill": "shell loops, netcat",
+   "goal": "A daemon on port 30002 returns bandit25's password given bandit24's password plus a secret 4-digit pincode (0000\u20139999).",
+   "explanation": "There are only 10,000 possible pincodes, so generate every 'password pincode' line with a bash loop and pipe them all through a single netcat connection. Filter out the 'Wrong!' replies and the surviving line carries the password.",
+   "apply": "Automating thousands of attempts through one connection is the essence of brute forcing and fuzzing. The same loop-and-pipe technique drives password spraying, PIN cracking, and input fuzzing \u2014 and it shows why short secrets are indefensible.",
+   "commands": [
+    "pw=$(cat /etc/bandit_pass/bandit24)",
+    "for i in $(seq -w 0 9999); do echo \"$pw $i\"; done | nc localhost 30002 | grep -v Wrong"
+   ],
+   "password": "SoHfqMOEqIX2IYKVciZxvgpR9a2Djx4P",
+   "shot": "l24.png"
+  }
+ ]
+}

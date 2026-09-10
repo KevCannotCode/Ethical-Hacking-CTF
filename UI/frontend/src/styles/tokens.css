@@ -1,0 +1,69 @@
+/* Design system — LOCKED. Neon synthwave palette on shadcn's variable names; pixel display face, terminal body face. */
+@font-face { font-family: 'Press Start 2P'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/press-start-2p.woff2) format('woff2'); }
+@font-face { font-family: 'VT323'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/vt323.woff2) format('woff2'); }
+
+:root {
+  --neon-green: #3dff3d;
+  --neon-pink: #ff3ec8;
+  --neon-purple: #a55cff;
+  --neon-cyan: #37c4ff;
+  --neon-yellow: #ffe94a;
+  --neon-red: #ff4d5e;
+  --grid: #1b4fd0;
+  --well: #03081f;
+
+  --background: #04061b;
+  --foreground: #f1f6ff;
+  --card: #0a1a48;
+  --card-foreground: #f1f6ff;
+  --popover: #071540;
+  --popover-foreground: #f1f6ff;
+  --primary: var(--neon-green);
+  --primary-foreground: #04061b;
+  --secondary: #0b1d55;
+  --secondary-foreground: var(--neon-cyan);
+  --muted: #0b1d55;
+  --muted-foreground: #a9bde0;
+  --accent: #12297a;
+  --accent-foreground: #f1f6ff;
+  --destructive: var(--neon-red);
+  --border: var(--neon-cyan);
+  --input: var(--neon-cyan);
+  --ring: var(--neon-yellow);
+  --radius: 0rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-neon-green: var(--neon-green);
+  --color-neon-pink: var(--neon-pink);
+  --color-neon-purple: var(--neon-purple);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-yellow: var(--neon-yellow);
+  --color-neon-red: var(--neon-red);
+  --color-grid: var(--grid);
+  --color-well: var(--well);
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --font-pixel: 'Press Start 2P', 'Segoe UI', system-ui, sans-serif;
+  --font-term: 'VT323', 'Courier New', monospace;
+}
