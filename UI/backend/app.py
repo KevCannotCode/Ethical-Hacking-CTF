@@ -16,7 +16,8 @@ app = Flask(__name__, static_folder=None)
 race = Race(config.STATE_FILE, config.DEFAULT_LAST_LEVEL, config.RETRY_COOLDOWN_SEC, config.TEAM_COLORS)
 verifier = Verifier(config.BANDIT_HOST, config.BANDIT_PORT, config.SSH_TIMEOUT, config.FLAG_PATTERN)
 walkthrough = Walkthrough()
-app.config["PUBLIC_URL"] = None  # filled in main()
+# Resolved at import so a WSGI server (gunicorn) serves a usable QR; main() overrides it from CLI flags.
+app.config["PUBLIC_URL"] = netinfo.public_url(config.PORT, config.PUBLIC_URL)
 
 # Admin credentials: resolved in main() (env/CLI, or generated). Empty password fails closed.
 ADMIN_USER = config.ADMIN_USER
