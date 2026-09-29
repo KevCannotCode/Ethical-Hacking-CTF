@@ -21,3 +21,16 @@ cp .env.example .env          # set CTF_ADMIN_USER + CTF_ADMIN_PASSWORD (gates t
 - `/submit` — student phone form (open; reached via the on-screen QR code)
 
 Rebuild the frontend after editing `UI/frontend/src`: `./run.sh --build`.
+
+## System requirements
+
+Measured on the live server (`ctf.themocs.org`, Linode, 2026-09-29).
+
+| Part | What it is | Needs |
+|---|---|---|
+| Frontend (`UI/frontend`) | Vite build, served by Flask | Node only to build |
+| Backend | Flask under gunicorn, 1 worker, 8 threads | ~75 MB RAM idle |
+| Answer check | One SSH login to `bandit.labs.overthewire.org` per submission | Outbound port 2220 open |
+
+- **Minimum:** 1 vCPU, 512 MB RAM free, 1 GB disk.
+- Load is one class at a time; a 1-hour race does not stress a 2 GB Linode.
